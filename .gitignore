@@ -1,2 +1,5 @@
 uploads/
 *.pdf
+__pycache__/
+*.pyc
+.env
