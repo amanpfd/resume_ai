@@ -1,0 +1,13 @@
+<!-- resume_ai/templates/index.html -->
+{% extends "base.html" %}
+
+{% block title %}Home - AI Resume Builder{% endblock %}
+
+{% block content %}
+<div class="jumbotron text-center">
+    <h1 class="display-4">Welcome to the AI Resume Builder</h1>
+    <p class="lead">Create and enhance your resume with the power of AI.</p>
+    <hr class="my-4">
+    <a class="btn btn-primary btn-lg" href="{{ url_for('upload_resume') }}" role="button">Get Started</a>
+</div>
+{% endblock %}

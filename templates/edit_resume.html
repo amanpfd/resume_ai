@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Resume - AI Resume Builder{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h2>Edit Your Resume</h2>
+    </div>
+    <div class="card-body">
+        <form method="post" action="{{ url_for('enhance_resume') }}">
+            <div class="form-group">
+                <label for="content">Resume Content</label>
+                <textarea class="form-control" id="content" name="content" rows="15" required>{{ content }}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="ai_service">Select AI Service</label>
+                <select class="form-control" id="ai_service" name="ai_service" required>
+                    <option value="ollama">Ollama</option>
+                    <option value="gemini">Gemini</option>
+                    <option value="openai">OpenAI GPT</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="objective">Enhancement Objective (Optional)</label>
+                <input type="text" class="form-control" id="objective" name="objective" placeholder="e.g., Targeting a software developer role at XYZ Company">
+            </div>
+            <input type="hidden" name="original_format" value="{{ original_format }}">
+            <button type="submit" class="btn btn-primary">Enhance with AI</button>
+        </form>
+    </div>
+</div>
+<div class="card">
+    <div class="card-header">
+        <h2>Download Enhanced Resume</h2>
+    </div>
+    <div class="card-body">
+        <form method="post" action="{{ url_for('download_resume') }}">
+            <input type="hidden" name="content" value="{{ content }}">
+            <input type="hidden" name="original_format" value="{{ original_format }}">
+            <div class="form-group">
+                <label for="format">Select Format</label>
+                <select class="form-control" id="format" name="format" required>
+                    <option value="pdf">PDF</option>
+                    <option value="docx">Word Document</option>
+                    <option value="txt">Text File</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-success">Download Resume</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

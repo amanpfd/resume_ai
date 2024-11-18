@@ -1,0 +1,21 @@
+<!-- resume_ai/templates/upload.html -->
+{% extends "base.html" %}
+
+{% block title %}Upload Resume - AI Resume Builder{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>Upload Your Resume</h2>
+    </div>
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="resume">Choose Resume File</label>
+                <input type="file" class="form-control-file" id="resume" name="resume" accept=".pdf,.docx" required>
+            </div>
+            <button type="submit" class="btn btn-success">Upload</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
