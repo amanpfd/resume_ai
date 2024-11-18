@@ -9,10 +9,11 @@ class ResumeDownloader:
 
     def __init__(self, app):
         self.app = app
-        self.UPLOAD_FOLDER = app.config['UPLOAD_FOLDER']
+        self.UPLOAD_FOLDER = app.config['UPDATED_FOLDER']
+        os.makedirs(self.UPLOAD_FOLDER, exist_ok=True)
 
-    def download(self, content, original_format):
-        output_filepath = os.path.join(self.UPLOAD_FOLDER, f'enhanced_resume.{original_format}')
+    def download(self, content, original_format, original_filename):
+        output_filepath = os.path.join(self.UPLOAD_FOLDER, f'{original_filename[:-(len(original_format)+1)]}_enhanced.{original_format}')
         
         if original_format == 'pdf':
             c = canvas.Canvas(output_filepath, pagesize=letter)

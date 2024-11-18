@@ -8,51 +8,32 @@ HEADERS = {"Content-Type": "application/json"}
 
 class ResumeParser:
 
-    def __init__(self):
-        pass
+    def __init__(self, filepath):
+        self.filepath = filepath
 
-    def generate_resume(self, file_path):
-        # Extract text from PDF
-        doc = fitz.open(file_path)
-        content = ""
-        for page in doc:
-            content += page.get_text()
-
-        # Call LLM to parse content into neat sections
-        payload = {
-            "model": "llama3.2",
-            "prompt": f"Parse the following resume content into neat sections:\n\n{content}"
-        }
-        response = requests.post(OLLAMA_ENDPOINT, headers=HEADERS, json=payload)
-        response_data = response.json()
-        generated_resume = response_data['text']
-
-        return generated_resume
-
-    def extract_content(self, filepath):
-        if filepath.endswith('.pdf'):
+    def extract_content(self):
+        if self.filepath.endswith('.pdf'):
             # Extract text from PDF
-            doc = fitz.open(filepath)
+            doc = fitz.open(self.filepath)
             content = ''
             for page in doc:
                 content += page.get_text()
-            sections = content #.split('\n\n')  # Simple split, adjust as needed
-            return sections
-        elif filepath.endswith('.docx'):
+            return content
+        elif self.filepath.endswith('.docx'):
             from docx import Document
-            doc = Document(filepath)
-            sections = []
-            current_section = ''
+            doc = Document(self.filepath)
+            content = ''
             for para in doc.paragraphs:
-                text = para.text.strip()
-                if text == '':
-                    if current_section:
-                        sections.append(current_section)
-                        current_section = ''
-                else:
-                    current_section += text + '\n'
-            if current_section:
-                sections.append(current_section)
-            return sections
+                content += para.text + '\n'
+            for table in doc.tables:
+                for row in table.rows:
+                    for cell in row.cells:
+                        content += cell.text + '\n'
+            # Iterate through paragraphs and identify list items based on formatting
+            for para in doc.paragraphs:
+                if para.style.name.startswith('List'):
+                    content += para.text + '\n'
+
+            return content
         else:
-            return []
+            return ''

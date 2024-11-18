@@ -3,15 +3,32 @@
 {% block title %}Edit Resume - AI Resume Builder{% endblock %}
 
 {% block content %}
+<!-- SimpleMDE CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+
 <div class="card mb-4">
     <div class="card-header">
         <h2>Edit Your Resume</h2>
     </div>
     <div class="card-body">
+        <!-- Display Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
         <form method="post" action="{{ url_for('enhance_resume') }}">
             <div class="form-group">
                 <label for="content">Resume Content</label>
-                <textarea class="form-control" id="content" name="content" rows="15" required>{{ content }}</textarea>
+                <textarea id="content" name="content" rows="15" required>{{ content }}</textarea>
             </div>
             <div class="form-group">
                 <label for="ai_service">Select AI Service</label>
@@ -26,6 +43,7 @@
                 <input type="text" class="form-control" id="objective" name="objective" placeholder="e.g., Targeting a software developer role at XYZ Company">
             </div>
             <input type="hidden" name="original_format" value="{{ original_format }}">
+            <input type="hidden" name="original_filename" value="{{ original_filename }}">
             <button type="submit" class="btn btn-primary">Enhance with AI</button>
         </form>
     </div>
@@ -38,6 +56,7 @@
         <form method="post" action="{{ url_for('download_resume') }}">
             <input type="hidden" name="content" value="{{ content }}">
             <input type="hidden" name="original_format" value="{{ original_format }}">
+            <input type="hidden" name="original_filename" value="{{ original_filename }}">
             <div class="form-group">
                 <label for="format">Select Format</label>
                 <select class="form-control" id="format" name="format" required>
@@ -50,4 +69,10 @@
         </form>
     </div>
 </div>
+
+<!-- SimpleMDE JS -->
+<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+<script>
+    var simplemde = new SimpleMDE({ element: document.getElementById("content") });
+</script>
 {% endblock %}
