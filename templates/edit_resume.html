@@ -44,7 +44,12 @@
             </div>
             <input type="hidden" name="original_format" value="{{ original_format }}">
             <input type="hidden" name="original_filename" value="{{ original_filename }}">
-            <button type="submit" class="btn btn-primary">Enhance with AI</button>
+            <div class="enhance-button-container">
+                <button type="submit" class="btn btn-primary" onclick="showLoading()">Enhance with AI</button>
+                <div id="loading-message" style="display: none;">
+                    <div class="loading-circle"></div>Working...
+                </div>
+            </div>
         </form>
     </div>
 </div>
@@ -74,5 +79,9 @@
 <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
 <script>
     var simplemde = new SimpleMDE({ element: document.getElementById("content") });
+
+    function showLoading() {
+        document.getElementById("loading-message").style.display = "inline-flex";
+    }
 </script>
 {% endblock %}
