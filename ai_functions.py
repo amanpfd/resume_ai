@@ -1,13 +1,9 @@
-from flask import Flask, request, jsonify, render_template, redirect, url_for, send_file
-import os
-import fitz  # For PDF handling
 import requests
 import json
 import openai
-
-app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = 'uploads'
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+import fitz
+import os
+from docx import Document
 
 OLLAMA_ENDPOINT = "http://localhost:11434/api/generate"
 HEADERS = {"Content-Type": "application/json"}
@@ -15,84 +11,6 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
     raise ValueError("No Gemini API key found. Please set the GEMINI_API_KEY environment variable.")
 
-# Home Route
-@app.route('/')
-def home():
-    return render_template('index.html')
-
-# Upload Route
-@app.route('/upload', methods=['GET', 'POST'])
-def upload_resume():
-    if request.method == 'POST':
-        if 'resume' not in request.files:
-            return 'No file uploaded', 400
-        file = request.files['resume']
-        if file.filename == '':
-            return 'No selected file', 400
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
-        file.save(filepath)
-        content = extract_content(filepath)
-        return render_template('edit_resume.html', content=content, original_format=file.filename.split('.')[-1])
-    return render_template('upload.html')
-
-@app.route("/resume", methods=["POST"])
-def create_resume():
-    if 'file' not in request.files:
-        return jsonify({"error": "No file part"}), 400
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({"error": "No selected file"}), 400
-    filename = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
-    file.save(filename)
-    generated_resume = generate_resume(filename)
-    generated_resume_path = os.path.join(app.config['UPLOAD_FOLDER'], 'generated_resume.txt')
-    with open(generated_resume_path, 'w') as f:
-        f.write(generated_resume)
-    return jsonify({"message": "File uploaded successfully", "filename": file.filename, "generated_resume": generated_resume_path}), 200
-
-# Enhance Resume Route
-@app.route('/enhance', methods=['POST'])
-def enhance_resume():
-    content = request.form.get('content')
-    ai_service = request.form.get('ai_service', 'ollama')
-    objective = request.form.get('objective', None)
-    original_format = request.form.get('original_format', 'pdf')
-    
-    if not content:
-        return "Error: No content provided", 400
-    
-    enhanced_content = enhance_with_ai(content, ai_service, objective)
-    return render_template('edit_resume.html', content=enhanced_content, original_format=original_format)
-
-# Download Resume Route
-@app.route('/download', methods=['POST'])
-def download_resume():
-    content = request.form['content']
-    original_format = request.form.get('original_format', 'pdf')
-    output_filepath = os.path.join(app.config['UPLOAD_FOLDER'], f'enhanced_resume.{original_format}')
-    
-    if original_format == 'pdf':
-        from reportlab.lib.pagesizes import letter
-        from reportlab.pdfgen import canvas
-        
-        c = canvas.Canvas(output_filepath, pagesize=letter)
-        width, height = letter
-        textobject = c.beginText(40, height - 50)
-        for line in content.split('\n'):
-            textobject.textLine(line)
-        c.drawText(textobject)
-        c.save()
-    elif original_format == 'docx':
-        from docx import Document
-        doc = Document()
-        for line in content.split('\n'):
-            doc.add_paragraph(line)
-        doc.save(output_filepath)
-    else:
-        with open(output_filepath, 'w') as f:
-            f.write(content)
-    
-    return send_file(output_filepath, as_attachment=True)
 
 def generate_resume(file_path):
     # Extract text from PDF
@@ -122,7 +40,6 @@ def extract_content(filepath):
         sections = content.split('\n\n')  # Simple split, adjust as needed
         return sections
     elif filepath.endswith('.docx'):
-        from docx import Document
         doc = Document(filepath)
         sections = []
         current_section = ''
@@ -251,6 +168,3 @@ def enhance_with_openai(content, objective=None):
     except openai.error.OpenAIError as e:
         print(f"OpenAI API Error: {e}")
         return "Error: Failed to enhance resume using OpenAI."
-
-if __name__ == "__main__":
-    app.run(debug=True)

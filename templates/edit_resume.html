@@ -18,13 +18,18 @@
                 <select class="form-control" id="ai_service" name="ai_service" required>
                     <option value="ollama">Ollama</option>
                     <option value="gemini">Gemini</option>
+                    <option value="openai">OpenAI GPT</option>
                 </select>
             </div>
+            <div class="form-group">
+                <label for="objective">Enhancement Objective (Optional)</label>
+                <input type="text" class="form-control" id="objective" name="objective" placeholder="e.g., Targeting a software developer role at XYZ Company">
+            </div>
+            <input type="hidden" name="original_format" value="{{ original_format }}">
             <button type="submit" class="btn btn-primary">Enhance with AI</button>
         </form>
     </div>
 </div>
-
 <div class="card">
     <div class="card-header">
         <h2>Download Enhanced Resume</h2>
@@ -32,6 +37,7 @@
     <div class="card-body">
         <form method="post" action="{{ url_for('download_resume') }}">
             <input type="hidden" name="content" value="{{ content }}">
+            <input type="hidden" name="original_format" value="{{ original_format }}">
             <div class="form-group">
                 <label for="format">Select Format</label>
                 <select class="form-control" id="format" name="format" required>
